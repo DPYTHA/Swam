@@ -234,14 +234,6 @@ def commandeVip():
 def page_suivi(code):
     return render_template("suivi_commande.html", code=code)
 
-# Connexion PostgreSQL
-conn = psycopg2.connect(
-    dbname="Swam",
-    user="swam_user",
-    password="Pytha1991",
-    host="localhost",
-    port="5432"
-)
 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 @app.route("/api/suivi_commande/<code>", methods=["GET"])
@@ -419,14 +411,7 @@ def get_livraisons():
 @app.route("/api/livraisons", methods=["GET", "POST"])
 def api_livraisons():
    
-
-    conn = psycopg2.connect(
-    dbname="Swam",
-    user="swam_user",
-    password="Pytha1991",
-    host="localhost",
-    port="5432"
-)
+    global cur, conn
     
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
