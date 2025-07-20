@@ -126,6 +126,9 @@ def get_commande_by_tracking(code):
         return None
 
 # ------------------- ROUTES DE BASE -------------------
+def get_cursor():
+    return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
 
 @app.route('/')
 def index():
@@ -418,7 +421,7 @@ def api_livraisons():
     if request.method == "GET":
         cur.execute("SELECT * FROM livraison ORDER BY tracking_code DESC")
         data = cur.fetchall()
-        conn.close()
+       
         return jsonify(data)
 
     if request.method == "POST":
@@ -452,7 +455,7 @@ def api_livraisons():
                 row.get("nom_livreur")
             ))
         conn.commit()
-        conn.close()
+       
         return jsonify({"message": "Données enregistrées"}), 200
 
 
