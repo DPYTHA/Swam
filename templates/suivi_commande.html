@@ -61,9 +61,11 @@
   </div>
   <div class="container tracker text-center">
     <h2>Suivi de votre commande</h2><br>
-     <p><strong>Code de suivi :</strong> <span id="code_affiche"></span></p>
     <p>Entrez votre code de suivi pour voir l’état de votre livraison :</p>
-    <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK">
+   <p><strong>Code de suivi :</strong> <span id="code_affiche">{{ code }}</span></p>
+
+   <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK" value="{{ code }}">
+
     <button onclick="rechercherCommande()" class="btn btn-light">Rechercher</button>
 
     <div id="detailsCommande" class="mt-5 d-none text-start">
@@ -128,6 +130,12 @@ function rechercherCommande() {
       document.getElementById("detailsCommande").classList.add("d-none");
     });
 }
+ window.onload = () => {
+    const codeInitial = document.getElementById("code_suivi").value.trim();
+    if (codeInitial) {
+      rechercherCommande();
+    }
+  };
 </script>
 </body>
 </html>
