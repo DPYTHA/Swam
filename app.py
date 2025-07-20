@@ -195,7 +195,6 @@ def commandeVip():
         try:
             data = request.get_json()
 
-            # Extraction sécurisée des champs
             tracking_code = data.get('tracking_code')
             type_commande = data.get('type')
             adresse_depart = data.get('depart')
@@ -207,22 +206,23 @@ def commandeVip():
             distance_km = float(data.get('distance_km') or 0)
             client_id = int(data.get('client_id') or 0)
 
-            # Vérification minimale
             if not all([tracking_code, type_commande, adresse_depart, adresse_arrivee, produits]):
                 return jsonify({"error": "Champs requis manquants"}), 400
 
-            cursor.execute('''
-                INSERT INTO commandes (
-                    tracking_code, type, depart, arrivee,
+            # ✅ Crée un curseur local ici
+            with conn.cursor() as cursor:
+                cursor.execute('''
+                    INSERT INTO commandes (
+                        tracking_code, type, depart, arrivee,
+                        produits, montant_colis, frais, montant_total,
+                        distance_km, statut, statut_livraison, client_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (
+                    tracking_code, type_commande, adresse_depart, adresse_arrivee,
                     produits, montant_colis, frais, montant_total,
-                    distance_km, statut,statut_livraison, client_id
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ''', (
-                tracking_code, type_commande, adresse_depart, adresse_arrivee,
-                produits, montant_colis, frais, montant_total,
-                distance_km, 'en_attente','en_attente', client_id
-            ))
-            conn.commit()
+                    distance_km, 'en_attente', 'en_attente', client_id
+                ))
+                conn.commit()
 
             return jsonify({"success": True, "tracking_code": tracking_code})
 
@@ -231,6 +231,7 @@ def commandeVip():
             return jsonify({"error": "Erreur lors de la commande", "details": str(e)}), 500
 
     return render_template('commandeVip.html')
+
 
 
 @app.route('/suivi/<code>')
