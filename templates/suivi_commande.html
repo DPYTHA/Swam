@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Commande</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(120deg, #ff914d, #ff5e62);
+      min-height: 100vh;
+      color: white;
+    }
+    .tracker {
+      margin-top: 100px;
+    }
+    .progress {
+      height: 30px;
+      background-color: #e0e0e0;
+    }
+    .progress-bar {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+  </style>
+    <style>
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px;
+      background-color: #1e293b;
+    }
+
+    .logout-button a {
+      text-decoration: none;
+      background-color: #1f0fae;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-button a:hover {
+      background-color: #dc2626;
+    }
+
+    .logout-button a:active {
+      background-color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+    <div class="header">
+    <div class="logout-button">
+      <a href="/deconnexion">Déconnexion</a>
+    </div>
+  </div>
+  <div class="container tracker text-center">
+    <h2>Suivi de votre commande</h2>
+    <p>Entrez votre code de suivi pour voir l’état de votre livraison :</p>
+    <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK">
+    <button onclick="rechercherCommande()" class="btn btn-light">Rechercher</button>
+
+    <div id="detailsCommande" class="mt-5 d-none text-start">
+      <h4 class="text-center">Détails de la commande</h4>
+      <p><strong>Code de suivi :</strong> <span id="code_affiche"></span></p>
+      <p><strong>Type de colis :</strong> <span id="type"></span></p>
+      <p><strong>Expéditeur :</strong> <span id="expediteur"></span></p>
+      <p><strong>Téléphone de l'expéditeur :</strong> <span id="tel_expediteur"></span></p>
+      <p><strong>Adresse de départ :</strong> <span id="depart"></span></p>
+      <p><strong>Produits :</strong> <span id="commande_produits"></span></p>
+      <p><strong>Destinataire :</strong> <span id="destinataire"></span></p>
+      <p><strong>Téléphone du destinataire :</strong> <span id="tel_destinataire"></span></p>
+      <p><strong>Adresse de destination :</strong> <span id="arrivee"></span></p>
+      <p><strong>Date d'envoi :</strong> <span id="date_envoi"></span></p>
+       <p><strong>Commande du :</strong> <span id="commande_date"></span></p>
+
+      <div class="progress mt-4">
+        <div id="barreStatut" class="progress-bar bg-success" role="progressbar" style="width: 0%">0%</div>
+      </div>
+      <p class="mt-2" id="statutText">En attente</p>
+    </div>
+  </div>
+
+<script>
+function rechercherCommande() {
+  const code = document.getElementById("code_suivi").value.trim();
+  fetch(`/api/suivi_commande/${code}`)
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(data => {
+      document.getElementById("detailsCommande").classList.remove("d-none");
+      document.getElementById("code_affiche").textContent = code;
+      document.getElementById("type").textContent = data.type;
+      document.getElementById("expediteur").textContent = data.expediteur;
+      document.getElementById("commande_produits").textContent = data.produits;
+      document.getElementById("tel_expediteur").textContent = data.telephone_expediteur;
+      document.getElementById("depart").textContent = data.depart;
+      document.getElementById("destinataire").textContent = data.destinataire;
+      document.getElementById("tel_destinataire").textContent = data.telephone_destinataire;
+      document.getElementById("arrivee").textContent = data.arrivee;
+      document.getElementById("date_envoi").textContent = data.date_envoi;
+      document.getElementById("commande_date").textContent = data.date_commande;
+
+      const etapes = ["en_attente", "en_cours", "livree"];
+      const labels = {
+        en_attente: "En attente",
+        en_cours: "En cours de livraison",
+        livree: "Livrée"
+      };
+      const index = etapes.indexOf(data.statut_livraison);
+      const progress = ((index + 1) / etapes.length) * 100;
+
+      const barre = document.getElementById("barreStatut");
+      barre.style.width = `${progress}%`;
+      barre.textContent = `${progress}%`;
+      document.getElementById("statutText").textContent = labels[data.statut_livraison] || "Inconnu";
+    })
+    .catch(() => {
+      alert("Commande non trouvée.");
+      document.getElementById("detailsCommande").classList.add("d-none");
+    });
+}
+</script>
+</body>
+</html>

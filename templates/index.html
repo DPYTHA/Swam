@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Swam - Loading</title>
+  
+  <style>
+    body {
+      background-color: rgb(255, 252, 252);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .splash-logo {
+      width: 150px;
+      height: 150px;
+      animation: scaleUp 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes scaleUp {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    .slogan {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-style: italic;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid orange;
+      width: 0;
+      visibility: hidden;
+      animation: none;
+    }
+
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div class="co"> 
+    <img src="/static/images/swamin_logo.png" alt="Swam logo" class="splash-logo" />
+    <div class="slogan" id="slogan">Swam , m'a bougé m'ba</div>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      const slogan = document.getElementById("slogan");
+      slogan.style.visibility = "visible";
+      slogan.style.animation = "typewriter 3s steps(30, end) forwards, blink 0.7s step-end infinite";
+    }, 3000); // Le slogan apparaît après 5 secondes
+
+    // Redirection après 9 secondes
+    setTimeout(() => {
+      window.location.href = "/home";
+    }, 7000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tableau de bord Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #ff914d, #ff5e62);
+      min-height: 100vh;
+      color: white;
+      padding-top: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .table thead th {
+      vertical-align: middle;
+    }
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 1rem;
+      background-color: #1e293b;
+    }
+    .logout-button a {
+      text-decoration: none;
+      background-color: #1f0fae;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    .logout-button a:hover {
+      background-color: #dc2626;
+    }
+    .logout-button a:active {
+      background-color: #b91c1c;
+    }
+    @media (max-width: 768px) {
+      .header {
+        justify-content: center;
+      }
+      .logout-button a {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logout-button">
+      <a href="/livraison">livraison</a>
+    </div>
+  </div>
+
+  <div class="container-fluid px-3">
+    <h1>SWAM PANEL CONTROL</h1>
+
+    <h3>Commandes</h3>
+    <div class="table-responsive mb-5">
+      <table class="table table-bordered table-hover bg-white text-dark" id="table-commandes">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Tracking</th>
+            <th>Type</th>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th>Produits</th>
+            <th>Montant</th>
+            <th>Frais</th>
+            <th>Total</th>
+            <th>Distance (km)</th>
+            <th>Statut</th>
+            <th>Livraison</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="commandes-body"></tbody>
+      </table>
+    </div>
+
+    <h3>Utilisateurs</h3>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover bg-white text-dark" id="table-users">
+        <thead class="table-light">
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Rôle</th>
+            <th>Disponible</th>
+          </tr>
+        </thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  chargerCommandes();
+  chargerUsers();
+});
+
+function chargerCommandes() {
+  fetch('/api/admin/commandes')
+    .then(res => res.json())
+    .then(data => {
+      const body = document.getElementById("commandes-body");
+      body.innerHTML = "";
+      data.forEach(cmd => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${cmd.id}</td>
+          <td>${cmd.tracking_code}</td>
+          <td>${cmd.type}</td>
+          <td>${cmd.depart}</td>
+          <td>${cmd.arrivee}</td>
+          <td>${cmd.produits || ''}</td>
+          <td>${Number(cmd.montant_colis).toFixed(2)}</td>
+          <td>${Number(cmd.frais).toFixed(2)}</td>
+          <td>${Number(cmd.montant_total).toFixed(2)}</td>
+          <td>${Number(cmd.distance_km).toFixed(2)} km</td>
+          <td>
+            <select onchange="updateStatut('${cmd.tracking_code}', this.value)" class="form-select form-select-sm">
+              <option value="en_attente" ${cmd.statut === "en_attente" ? "selected" : ""}>En attente</option>
+              <option value="validée" ${cmd.statut === "validée" ? "selected" : ""}>Validée</option>
+              <option value="refusée" ${cmd.statut === "refusée" ? "selected" : ""}>Refusée</option>
+            </select>
+          </td>
+          <td>${cmd.statut_livraison}</td>
+          <td>${new Date(cmd.date_commande).toLocaleString()}</td>
+          <td>
+            <button class="btn btn-warning btn-sm me-1" onclick="modifierCommande('${cmd.tracking_code}')">Modifier</button>
+            <button class="btn btn-danger btn-sm" onclick="supprimerCommande('${cmd.tracking_code}')">Supprimer</button>
+          </td>
+        `;
+        body.appendChild(row);
+      });
+    });
+}
+
+function updateStatut(code, statut) {
+  fetch('/api/admin/update_statut', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, statut })
+  })
+    .then(res => res.json())
+    .then(data => alert(data.message))
+    .catch(() => alert("Erreur lors de la mise à jour du statut."));
+}
+
+function supprimerCommande(code) {
+  if (!confirm("Supprimer cette commande ?")) return;
+  fetch('/api/admin/delete_commande', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code })
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      chargerCommandes();
+    });
+}
+
+function chargerUsers() {
+  fetch('/api/users')
+    .then(res => res.json())
+    .then(data => {
+      const body = document.getElementById("users-body");
+      body.innerHTML = "";
+      data.forEach(user => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${user.prenom} ${user.nom}</td>
+          <td>${user.email}</td>
+          <td>${user.telephone}</td>
+          <td>${user.role}</td>
+          <td>${user.disponible ? "✅" : "❌"}</td>
+        `;
+        body.appendChild(row);
+      });
+    });
+}
+
+function modifierCommande(code) {
+  const type = prompt("Nouveau type de livraison :");
+  const depart = prompt("Nouveau point de départ :");
+  const arrivee = prompt("Nouveau point d'arrivée :");
+
+  if (!type || !depart || !arrivee) {
+    alert("Champs requis !");
+    return;
+  }
+
+  fetch('/api/admin/update_commande', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, type, depart, arrivee })
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      chargerCommandes();
+    })
+    .catch(() => alert("Erreur lors de la modification de la commande."));
+}
+</script>
+</body>
+</html>

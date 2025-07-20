@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ColiVillage - Accueil</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: white;
+      color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      width: 60px;
+    }
+
+    .registerConnexion {
+      display: flex;
+      gap: 10px;
+     margin-left: -150px;
+    }
+
+    .register, .connexion {
+      cursor: pointer;
+    }
+
+    .register a, .connexion a {
+      text-decoration: none;
+      color: #111;
+    }
+
+    .register a:hover,
+    .connexion a:hover {
+      color: orangered;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      font-size: 25px;
+      color: black;
+      margin-right: 290px;
+    }
+
+    .slogan {
+      font-size: 1.8em;
+      margin-top: 20px;
+      font-weight: 600;
+    }
+
+    .highlight {
+      color: orangered;
+    }
+
+    .veggies {
+      width: 90%;
+      max-width: 400px;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+
+    .start-btn {
+      margin-top: 30px;
+      background-color: orangered;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 1em;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .start-btn:hover {
+      background-color: orangered;
+    }
+
+    .kcal-tags {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      gap: 10px;
+    }
+
+    .kcal {
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 0.85em;
+      color: #333;
+      border-color: orange;
+    }
+    .kcal:hover {
+      background-color: orange;
+    }
+    .kcal a{
+      text-decoration: none;
+      color: #111;
+    }
+
+    .slider-container {
+      margin-top: 30px;
+      background-color: #eee;
+      border-radius: 40px;
+      position: relative;
+      height: 60px;
+      overflow: hidden;
+      user-select: none;
+      width: 400px;
+      max-width: 500px;
+    }
+
+    .slider-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      color: #999;
+      pointer-events: none;
+    }
+
+    .slider-button {
+      width: 50px;
+      height: 60px;
+      background-color: orangered;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .image-slider {
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+      margin: 20px 0;
+    }
+
+    .slide-track {
+      display: flex;
+      animation: scroll 15s linear infinite;
+    }
+
+    .slide-track img {
+      width: 200px;
+      height: 130px;
+      margin-right: 10px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <img src="/static/images/swamin_logo.png" alt="swam" class="logo" />
+      <div class="brand"><b>Swam</b></div>
+      <div class="registerConnexion">
+        <div class="register"><a href="/register_login"><b>Inscription</b></a></div>
+        <div class="connexion"><a href="/register_login"><b>Connexion</b></a></div>
+      </div>
+    </div>
+
+    <div class="image-slider">
+      <div class="slide-track">
+        <img src="/static/images/pass1.png" alt="pass1" />
+        <img src="/static/images/pass2.png" alt="colis 2" />
+        <img src="/static/images/pass5.png" alt="colis 3" />
+        <img src="/static/images/pass4.png" alt="colis 4" />
+        <img src="/static/images/pass5.png" alt="colis 5" />
+      </div>
+    </div>
+
+    <img src="/static/images/BackLogo.png" alt="BackLogo" class="veggies" />
+
+    <div class="kcal-tags">
+      <div class="kcal"><a href="">Sagbadou</a></div>
+      <div class="kcal"><a href="">Code Bonus</a></div>
+      <div class="kcal"><a href="/suivi_commande">Ma commande</a></div>
+    </div>
+
+    <div class="slider-container" id="slider">
+      <div class="slider-text">Glisser pour commencer</div>
+      <div class="slider-button" id="slider-btn">➤</div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem;">
+      <hr style="margin-bottom: 10px;" />
+      <p>© 2025 <strong style="color: orange;">Pythacademy</strong> – Tous droits réservés</p>
+      <p>Conçu avec ❤️ pour les communautés locales</p>
+    </footer>
+  </div>
+
+  <script>
+    const slider = document.getElementById('slider');
+    const sliderBtn = document.getElementById('slider-btn');
+    let isDragging = false;
+
+    sliderBtn.addEventListener('mousedown', startDrag);
+    sliderBtn.addEventListener('touchstart', startDrag);
+
+    function startDrag(e) {
+      isDragging = true;
+      const move = e.type === 'touchstart' ? e.touches[0] : e;
+      const sliderWidth = slider.offsetWidth;
+      const buttonWidth = sliderBtn.offsetWidth;
+
+      const onMove = (eMove) => {
+        if (!isDragging) return;
+        const pageX = eMove.type.startsWith('touch') ? eMove.touches[0].pageX : eMove.pageX;
+        let newLeft = pageX - slider.getBoundingClientRect().left - buttonWidth / 2;
+        newLeft = Math.max(0, Math.min(newLeft, sliderWidth - buttonWidth));
+        sliderBtn.style.left = `${newLeft}px`;
+
+        if (newLeft >= sliderWidth - buttonWidth - 5) {
+          window.location.href = '/commandeVip';
+        }
+      };
+
+      const stopMove = () => {
+        isDragging = false;
+        sliderBtn.style.left = '0px';
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('mouseup', stopMove);
+        document.removeEventListener('touchend', stopMove);
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove);
+      document.addEventListener('mouseup', stopMove);
+      document.addEventListener('touchend', stopMove);
+    }
+  </script>
+</body>
+</html>

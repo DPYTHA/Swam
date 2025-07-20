@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="web icon" href="/static/images/swamin_logo.png">
+  <title>Paiement - Swam</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff;
+      color: #000;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: orangered;
+      margin-bottom: 20px;
+    }
+
+    .montant {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: green;
+      margin-bottom: 30px;
+    }
+
+    .op-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .operator {
+      display: flex;
+      align-items: center;
+      border: 2px solid #ccc;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .operator:hover,
+    .operator.selected {
+      border-color: orangered;
+      background-color: #fff8f0;
+    }
+
+    .operator i {
+      font-size: 22px;
+      margin-right: 15px;
+      color: orangered;
+      width: 30px;
+      text-align: center;
+    }
+
+    .operator span {
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .number {
+      display: none;
+      margin-left: 45px;
+      margin-top: 5px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    button {
+      width: 60%;
+      padding: 14px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: orangered;
+      color: white;
+      cursor: pointer;
+      margin-left: 100px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #111;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .operator i {
+        font-size: 20px;
+        margin-right: 10px;
+      }
+
+      .operator span {
+        font-size: 1rem;
+      }
+
+      .number {
+        margin-left: 35px;
+        font-size: 0.9rem;
+      }
+
+      .montant {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Paiement sécurisé</h1>
+
+  <div class="montant" id="montantAffiche">Chargement du montant...</div>
+
+  <div class="op-list" id="operateurs">
+    <div class="operator" data-op="orange">
+      <i class="fas fa-wallet"></i>
+      <span>Orange Money</span>
+    </div>
+    <div class="number" id="orange-number">Envoyez à : 07 07 07 07 07</div>
+
+    <div class="operator" data-op="mtn">
+      <i class="fas fa-mobile-alt"></i>
+      <span>MTN Mobile Money</span>
+    </div>
+    <div class="number" id="mtn-number">Envoyez à : 05 05 05 05 05</div>
+
+    <div class="operator" data-op="moov">
+      <i class="fas fa-sim-card"></i>
+      <span>Moov Money</span>
+    </div>
+    <div class="number" id="moov-number">Envoyez à : 01 01 01 01 01</div>
+  </div>
+
+  <button onclick="confirmerPaiement()">J’ai payé</button>
+
+  <footer>
+    <hr>
+    <p>© 2025 <strong style="color: orange;">Pythacademy</strong></p>
+    <p>Merci pour votre confiance </p>
+  </footer>
+
+  <script>
+  function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const montant = getParam('montant');
+  const tracking = getParam('tracking');
+
+  // Stocker pour confirmation
+  if (montant) localStorage.setItem('totalPaiement', montant);
+  if (tracking) localStorage.setItem('commande_tracking', JSON.stringify({ tracking_code: tracking }));
+
+  const montantEl = document.getElementById('montantAffiche');
+  montantEl.innerText = montant
+    ? `Montant à solder : ${montant} FCFA`
+    : 'Montant indisponible';
+
+
+
+
+      const ops = document.querySelectorAll('.operator');
+      const numbers = {
+        orange: document.getElementById('orange-number'),
+        mtn: document.getElementById('mtn-number'),
+        moov: document.getElementById('moov-number')
+      };
+
+      ops.forEach(op => {
+        op.addEventListener('click', () => {
+          ops.forEach(o => o.classList.remove('selected'));
+          Object.values(numbers).forEach(n => n.style.display = 'none');
+
+          op.classList.add('selected');
+          const id = op.dataset.op;
+          if (numbers[id]) numbers[id].style.display = 'block';
+        });
+      });
+    });
+
+    function confirmerPaiement() {
+      const tracking = localStorage.getItem('commande_tracking');
+      const suivi = tracking ? JSON.parse(tracking).tracking_code : 'SWAMXXXX';
+      alert(`✅ Merci ! Paiement reçu.\nCode de suivi : ${suivi}`);
+      window.location.href = "/confirmation";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirmation - Swam</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .logo {
+      width: 60px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      color: orangered;
+      margin-top: 20px;
+      font-size: 1.8rem;
+    }
+
+    .message {
+      font-size: 1.1rem;
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+
+    .icon {
+      font-size: 60px;
+      color: green;
+      margin-top: 20px;
+    }
+
+    .btn-home {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: orangered;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .btn-home:hover {
+      background-color: #d94000;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+      .message {
+        font-size: 1rem;
+      }
+      .icon {
+        font-size: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="/static/images/swamin_logo.png" alt="Logo Swam" class="logo">
+  <h1>Commande confirmée ✅</h1>
+
+  <div class="icon"><i class="fas fa-check-circle"></i></div>
+
+  <p class="message">
+    Merci pour votre confiance !<br>
+    Votre commande a été enregistrée avec succès.<br><br>
+    Nous vous contacterons très bientôt pour la livraison.
+  </p>
+
+  <a href="/suivi_commande" class="btn-home" id="goHomeBtn">Retour à l’accueil</a>
+
+  <footer>
+    <hr style="margin: 30px 0;">
+    <p>© 2025 <strong style="color: orange;">Pythacademy</strong></p>
+    <p>Swam – Ensemble, on va plus loin 🚚</p>
+  </footer>
+
+ <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code_suivi');
+  const trackingElement = document.getElementById('trackingCode');
+
+ 
+</script>
+<script>
+    // Récupère le code suivi depuis la session Flask injectée dans le HTML
+    const codeSuivi = "{{ code_suivi }}" || null;
+
+    if (codeSuivi) {
+      // Stocke dans le localStorage pour affichage du tracking sur /home
+      localStorage.setItem("paiementConfirme", "true");
+      localStorage.setItem("code_suivi", codeSuivi);
+
+      // Ajoute dynamiquement le code dans le bouton vers /home
+      const goHomeBtn = document.getElementById("goHomeBtn");
+      if (goHomeBtn) {
+        goHomeBtn.href = "/home?code=" + codeSuivi;
+      }
+    }
+  </script>
+
+
+</body>
+</html>

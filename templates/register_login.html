@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion / Inscription - ÉZUKA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f3ef;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      background-color: white;
+      border-bottom: 1px solid #ddd;
+    }
+    .logo { width: 50px; }
+    .brand { font-size: 18px; font-weight: bold; color: #16110c; }
+    .localisation {
+      font-size: 14px;
+      color: #444;
+      margin-left: 180px;
+    }
+    .container {
+      background: white;
+      padding: 25px;
+      margin: 30px auto;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #d29b68;
+    }
+    form { display: none; flex-direction: column; }
+    form.active { display: flex; }
+    input {
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 12px;
+      margin-top: 15px;
+      background-color: orangered;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover { background-color: #0f1113; }
+    .toggle-link {
+      margin-top: 15px;
+      text-align: center;
+      cursor: pointer;
+      color: orangered;
+      font-size: 14px;
+    }
+    .toggle-link:hover { text-decoration: underline; }
+    @media (max-width: 480px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .localisation { margin-left: 140px; }
+      .container { margin: 20px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="/static/images/swamin_logo.png" alt="swam" class="logo">
+    <div class="brand">Swam</div>
+    <div class="localisation"><i class="fas fa-map-marker-alt"></i> Assinie-Mafia</div>
+  </div>
+  <div class="container">
+    <h2 id="form-title">Connexion</h2>
+    <!-- Connexion -->
+<form id="login-form" class="active" method="POST" action="{{ url_for('login') }}">
+  <input type="email" name="email" placeholder="Email" required>
+  <input type="password" name="password" placeholder="Mot de passe" required>
+  <input type="hidden" name="role" value="utilisateur">
+  <button type="submit">Se connecter</button>
+</form>
+
+    <!-- Inscription -->
+<form id="register-form" method="POST" action="{{ url_for('register') }}">
+      <input type="text" name="prenom" placeholder="Prénom" required>
+      <input type="text" name="nom" placeholder="Nom" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Mot de passe" required>
+      <input type="text" name="telephone" placeholder="Téléphone" required>
+      <input type="hidden" name="role" value="utilisateur">
+      <button type="submit">S’inscrire</button>
+    </form>
+    <div class="toggle-link" onclick="toggleForms()">Créer un compte</div>
+  </div>
+  <footer style="text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem;">
+    <hr style="margin-bottom: 10px;">
+    <p>© 2025 <strong style="color: orange;">Pythacademy</strong> – Tous droits réservés</p>
+    <p>Conçu avec ❤️ pour les communautés locales</p>
+  </footer>
+  <script>
+    function toggleForms() {
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
+      const toggleText = document.querySelector(".toggle-link");
+      const title = document.getElementById("form-title");
+      if (loginForm.classList.contains("active")) {
+        loginForm.classList.remove("active");
+        registerForm.classList.add("active");
+        toggleText.textContent = "Déjà inscrit ? Se connecter";
+        title.textContent = "Inscription";
+      } else {
+        registerForm.classList.remove("active");
+        loginForm.classList.add("active");
+        toggleText.textContent = "Créer un compte";
+        title.textContent = "Connexion";
+      }
+    }
+
+    function handleLogin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    let role = "utilisateur";
+    if (email.includes("admin")) {
+      role = "admin";
+    } else if (email.includes("livreur")) {
+      role = "livreur";
+    }
+
+    // Appel à Flask pour vérifier l'utilisateur
+    fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("nomUtilisateur", data.nom); // 👈 Stocke le nom
+        console.log("Nom reçu du serveur :", data.nom); // 👈 Affiche dans la console
+        setTimeout(() => {
+  if (data.role === "admin") {
+    window.location.href = "/admin";
+  } else if (data.role === "livreur") {
+    window.location.href = "/livreur";
+  } else {
+    window.location.href = "/commandeVip";
+  }
+}, 100); // 100 ms de pause
+
+      } else {
+        alert("Identifiants incorrects.");
+      }
+    });
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Commande colis</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #fff;
+      color: #000;
+    }
+
+    .first_Container {
+      background-image: url("/static/images/imageBack.png"); /* ✔ chemin corrigé */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+    }
+    .brand{
+        margin-right: 1200px;
+      }
+
+    .logo {
+      width: 50px;
+      margin-right: 10px;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    #logoutBtn {
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+    #logoutBtn:hover {
+      color: #ff6600;
+    }
+
+    .container {
+      width: 800px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #ff6600;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .button {
+      margin-top: 2rem;
+      background-color: #ff6600;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .signal img{
+      border-radius: 50%;
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        align-items: center;
+      }
+
+      .brand{
+        margin-right: 200px;
+      }
+
+      #logoutBtn {
+        margin-top: 10px;
+        align-self: flex-end;
+      }
+
+    .first_Container {
+      background-image: url("/static/images/imageBack.png"); /* ✔ chemin corrigé */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+     .container {
+      
+      width: 400px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+    }
+    }
+  </style>
+</head>
+<body>
+  <div class="first_Container">
+    <div class="header">
+    <div class="signal"><img src="/static/images/swamin_logo.png" alt="swam" class="logo"></div>
+    <div class="brand"><b>Swam <br></b></div>
+    <div class="registerConexion">
+      <div id="logoutBtn"><b>Deconnexion</b></div>
+      
+    </div>
+  </div>
+  <div class="container">
+  
+    <h2>Passer une commande</h2>
+
+    <label for="type">Type de commande</label>
+    <select id="type">
+      <option value="">-- Sélectionnez --</option>
+      <option value="achatLivraison">Achat & Livraison</option>
+      <option value="livraisonSeule">Livraison seule</option>
+    </select>
+
+    <div id="commonFields" class="hidden">
+      <label for="depart">Adresse de départ</label>
+      <select id="depart"></select>
+
+      <label for="arrivee">Adresse d’arrivée</label>
+      <select id="arrivee"></select>
+    </div>
+
+   <div id="produitsField" class="hidden">
+    <label for="produits">Produits et contact</label>
+    <textarea id="produits" rows="3" placeholder="- Votre numéro , vos produits pour achat (expliquez clairement et détaillez)" required></textarea>
+  </div>
+
+
+
+    <div id="achatFields" class="hidden">
+      <label for="montant_colis">Montant total des achats (FCFA)</label>
+      <input type="number" id="montant_colis" placeholder="Ex : 10000" min="0">
+    </div>
+
+    <div class="result" id="frais_result"></div>
+    <div class="result" id="total_result"></div>
+
+    <button class="button" onclick="envoyerCommande()">Valider et payer</button>
+  </div>
+
+  <script>
+  const adresses = [
+    "Pango 1, mosquée", "Pango 1, église Assemblée de Dieu", "Pango 1, Résidence egnehué",
+    "Pango 2, pharmacie", "Pango 2, atelier espoir", "Pango 2, chez Mr Akalo",
+    "Epkouzan, assinie lodge", "Epkouzan, campement", "Epkouzan, Milan hôtel sominou",
+    "Donwahi, Epp KPMG", "Donwahi, Essouman hôtel", "Donwahi, yamaman lodge",
+    "Voie principale, sodeci", "Voie principale, cour royale", "Voie principale, Quai du beach",
+    "Voie principale, pont", "Voie principale, mairie", "Voie principale, super marché",
+    "Zion, assinie beach club", "Zion, agence Moov", "Zion, maison ancien chef",
+    "Zion, palais bar", "Zion hôtel",
+    "Voie du marché, au bord chez miss olga", "Voie du marché, epp assinie 1A et 1B", "Voie du marché, boulangerie",
+    "Voie du commissariat, commissariat", "Voie du commissariat, cité des enseignants", "Voie du commissariat, hôtel cool Mafia",
+    "Voie du dispensaire, dispensaire", "Voie du dispensaire, hôtel sandrofia", "Voie du dispensaire, église methodiste",
+    "Voie catholique, église catholique", "Voie catholique, maternité",
+    "Sagbadou, boutique de Sagbadou", "Sagbadou, cimetière", "Sagbadou, tarpon",
+    "Alikro", "Abissa lodge", "Station", "N'goakro", "Carrefour Essankro", "Biko lodge", "Résidence djéne",
+    "Le sunshine lodge", "Mykonos", "L'escapade hôtel", "Akoula kan lodge", "Nahiko hôtel", "Akwa beach", "Coucoué lodge",
+    "Marine de babihana", "Le climbié d'assinie", "Villa touraco", "La maison d'Akoula", "Villa akwaba",
+    "Elimah houses", "Hôtel André Richard", "Féline lodge", "Hôtel le premier Assouindé", "Notevia hôtel",
+    "Assinie beach hôtel", "Rond point d'assouindé"
+  ];
+
+  const departSelect = document.getElementById('depart');
+  const arriveeSelect = document.getElementById('arrivee');
+
+  adresses.forEach(addr => {
+    const opt1 = document.createElement("option");
+    opt1.value = opt1.textContent = addr;
+    departSelect.appendChild(opt1.cloneNode(true));
+    arriveeSelect.appendChild(opt1);
+  });
+
+  let distances = {}; // sera rempli depuis JSON
+
+  // Charger le fichier JSON contenant toutes les distances
+  fetch("/static/distances_combinations.json")  // <-- adapte ce chemin à ton projet
+    .then(res => res.json())
+    .then(json => {
+      distances = json;
+    })
+    .catch(err => {
+      alert("Erreur de chargement des distances : " + err.message);
+    });
+
+  const typeSelect = document.getElementById('type');
+  const achatFields = document.getElementById('achatFields');
+  const commonFields = document.getElementById('commonFields');
+  const produitsField = document.getElementById('produitsField');
+  const fraisResult = document.getElementById('frais_result');
+  const totalResult = document.getElementById('total_result');
+
+ typeSelect.addEventListener("change", () => {
+  const type = typeSelect.value;
+  commonFields.classList.remove("hidden"); // Toujours visible
+   produitsField.classList.remove("hidden");
+  achatFields.classList.toggle("hidden", type !== "achatLivraison");
+  fraisResult.textContent = "";
+  totalResult.textContent = "";
+});
+
+
+  function getDistanceKm(dep, arr) {
+    if (dep === arr) return 0;
+    return distances[`${dep}->${arr}`] || distances[`${arr}->${dep}`] || 2;
+  }
+
+  document.getElementById("logoutBtn").addEventListener('click',()=>{
+    localStorage.clear();
+    window.location.href=('/home')
+  })
+function envoyerCommande() {
+  const type = typeSelect.value;
+  const depart = departSelect.value;
+  const arrivee = arriveeSelect.value;
+  const produits = document.getElementById("produits").value.trim();
+
+  if (!produits) {
+    alert("Veuillez remplir le champ 'Produits et contact' avant de valider la commande.");
+    return;
+  }
+
+  const trackingCode = "CMD_" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "_" +
+                       Math.random().toString(36).substring(2, 6).toUpperCase();
+
+  localStorage.setItem("commande_tracking", JSON.stringify({
+    tracking_code: trackingCode,
+    statut: 0
+  }));
+
+  const km = getDistanceKm(depart, arrivee);
+  let frais = 0;
+  let montant_achat = 0;
+
+  const data = {
+    type,
+    depart,
+    arrivee,
+    distance_km: km,
+    tracking_code: trackingCode,
+    produits,
+    client_id: 1
+  };
+
+  if (type === "achatLivraison") {
+    montant_achat = parseFloat(document.getElementById("montant_colis").value) || 0;
+    frais = 0.2 * montant_achat + 500 * km;
+    data.montant_colis = montant_achat;
+  } else {
+    frais = 500 * km;
+  }
+
+  const montant_total = Math.ceil(frais + montant_achat);
+  data.frais = frais;
+  data.montant_total = montant_total;
+
+  fraisResult.textContent = `Frais estimés : ${Math.ceil(frais)} FCFA`;
+  totalResult.textContent = `Montant total à payer : ${montant_total} FCFA`;
+
+  fetch("/commandeVip", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(r => {
+    alert(`✅ Commande envoyée !\nNuméro de suivi : ${trackingCode}`);
+    window.location.href = `/paiement?montant=${montant_total}&tracking=${trackingCode}`;
+  })
+  .catch(e => alert("Erreur : " + e.message));
+}
+
+</script>
+
+</body>
+</html>

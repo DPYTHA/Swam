@@ -1,0 +1,175 @@
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Livreur</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(120deg, #bcc2ca, #da7e38);
+      min-height: 100vh;
+      color: white;
+    }
+    .livreur-section {
+      margin-top: 80px;
+    }
+    .progress {
+      height: 30px;
+      background-color: #ccc;
+    }
+    .progress-bar {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .details {
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
+   <style>
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px;
+      background-color: #1e293b;
+    }
+
+    .logout-button a {
+      text-decoration: none;
+      background-color: #1f0fae;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-button a:hover {
+      background-color: #dc2626;
+    }
+
+    .logout-button a:active {
+      background-color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="my-4">
+  <h5>Disponibilité :</h5>
+  <button id="btn_on" class="btn btn-success me-2" onclick="changerDisponibilite(true)">✅ Disponible</button>
+  <button id="btn_off" class="btn btn-danger" onclick="changerDisponibilite(false)">❌ Indisponible</button>
+</div>
+    <div class="logout-button">
+      <a href="/deconnexion">Déconnexion</a>
+    </div>
+  </div>
+<div class="container livreur-section text-center">
+  <h2>Espace Livreur</h2>
+  <p>Entrez le code de suivi :</p>
+  <input type="text" id="code_client" class="form-control mb-3" placeholder="CMD_20250719_HYWK">
+  <button class="btn btn-light" onclick="chargerCommande()">Charger</button>
+
+  <div id="commandeInfos" class="mt-4 d-none">
+    <h4>Commande à livrer</h4>
+    <p><strong>Code :</strong> <span id="tracking_code"></span></p>
+    <p><strong>De :</strong> <span id="livreur_depart"></span></p>
+    <p><strong>À :</strong> <span id="livreur_arrivee"></span></p>
+    <p><strong>Type :</strong> <span id="commande_type"></span></p>
+    <p><strong>Produits :</strong> <span id="commande_produits"></span></p>
+    <p><strong>Distance :</strong> <span id="commande_distance"></span> km</p>
+    <p><strong>Client :</strong> <span id="commande_client"></span></p>
+    <p><strong>Commande du :</strong> <span id="commande_date"></span></p>
+
+    <div class="progress mt-3">
+      <div id="livreur_barre" class="progress-bar bg-warning" role="progressbar" style="width: 0%">0%</div>
+    </div>
+    <p id="livreur_statut">En attente</p>
+
+    <button id="btn_avancer" class="btn btn-success mt-3" onclick="avancerStatut()">Faire progresser</button>
+  </div>
+</div>
+
+<script>
+let currentCode = "";
+let currentStatut = "";
+const statutOrder = ["en_attente", "en_cours", "livree"];
+const statutLabels = { en_attente: "En attente", en_cours: "En cours de livraison", livree: "Livrée" };
+
+function chargerCommande() {
+  currentCode = document.getElementById("code_client").value.trim();
+  fetch(`/api/suivi_commande/${currentCode}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Commande non trouvée");
+      return res.json();
+    })
+    .then(data => {
+      document.getElementById("commandeInfos").classList.remove("d-none");
+      document.getElementById("tracking_code").textContent = data.tracking_code;
+      document.getElementById("livreur_depart").textContent = data.depart;
+      document.getElementById("livreur_arrivee").textContent = data.arrivee;
+      document.getElementById("commande_type").textContent = data.type;
+      document.getElementById("commande_produits").textContent = data.produits || "N/A";
+      document.getElementById("commande_distance").textContent = data.distance_km || "N/A";
+      document.getElementById("commande_client").textContent = data.client_id || "N/A";
+      document.getElementById("commande_date").textContent = data.date_commande || "N/A";
+
+      currentStatut = data.statut_livraison;
+      updateProgress();
+    })
+    .catch(err => alert(err.message));
+}
+
+function avancerStatut() {
+  const index = statutOrder.indexOf(currentStatut);
+  if (index < 0 || index >= statutOrder.length - 1) {
+    alert("La commande est déjà livrée.");
+    return;
+  }
+
+  const nouveauStatut = statutOrder[index + 1];
+  fetch(`/api/maj_statut/${currentCode}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ statut: nouveauStatut })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Erreur lors de la mise à jour.");
+    return res.json();
+  })
+  .then(() => {
+    currentStatut = nouveauStatut;
+    updateProgress();
+    alert("Statut mis à jour : " + statutLabels[currentStatut]);
+  })
+  .catch(err => alert(err.message));
+}
+
+function updateProgress() {
+  const index = statutOrder.indexOf(currentStatut);
+  const progress = ((index + 1) / statutOrder.length) * 100;
+  const bar = document.getElementById("livreur_barre");
+  bar.style.width = `${progress}%`;
+  bar.textContent = `${progress}%`;
+  document.getElementById("livreur_statut").textContent = statutLabels[currentStatut];
+
+  // Désactiver le bouton si livraison terminée
+  document.getElementById("btn_avancer").disabled = (currentStatut === "livree");
+}
+function changerDisponibilite(etat) {
+  fetch("/api/livreur/disponibilite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ disponible: etat })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message || "Mise à jour effectuée");
+  })
+  .catch(err => alert("Erreur de disponibilité : " + err.message));
+}
+
+</script>
+</body>
+</html>

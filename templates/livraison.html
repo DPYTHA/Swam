@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>livraison/Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(120deg, #ff914d, #ff5e62);
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px;
+      background-color: #1e293b;
+    }
+
+    .logout-button a {
+      text-decoration: none;
+      background-color: #1f0fae;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-button a:hover {
+      background-color: #dc2626;
+    }
+
+    .logout-button a:active {
+      background-color: #b91c1c;
+    }
+
+    .tracker {
+      margin-top: 60px;
+    }
+
+    .progress {
+      height: 30px;
+      background-color: #e0e0e0;
+    }
+
+    .progress-bar {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    h2 {
+      color: #fff;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 40px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e293b;
+      color: white;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+
+    input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: white;
+    }
+
+    input:focus {
+      outline: 1px solid #007bff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 10px 5px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .logout-button a {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      th, td {
+        font-size: 12px;
+        padding: 6px;
+      }
+
+      input {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="logout-button">
+      <a href="/deconnexion">Déconnexion</a>
+    </div>
+  </div>
+
+  <div class="container-fluid tracker text-center">
+    <h2>Suivi de votre commande</h2>
+    <p>Entrez votre code de suivi pour voir l’état de votre livraison :</p>
+    <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK">
+    <button onclick="rechercherCommande()" class="btn btn-light">Rechercher</button>
+
+    <div id="detailsCommande" class="mt-5 d-none text-start text-white">
+      <h4 class="text-center">Détails de la commande</h4>
+      <p><strong>Code de suivi :</strong> <span id="code_affiche"></span></p>
+      <p><strong>Type de colis :</strong> <span id="type"></span></p>
+      <p><strong>Expéditeur :</strong> <span id="expediteur"></span></p>
+      <p><strong>Téléphone de l'expéditeur :</strong> <span id="tel_expediteur"></span></p>
+      <p><strong>Adresse de départ :</strong> <span id="depart"></span></p>
+      <p><strong>Produits :</strong> <span id="commande_produits"></span></p>
+      <p><strong>Destinataire :</strong> <span id="destinataire"></span></p>
+      <p><strong>Téléphone du destinataire :</strong> <span id="tel_destinataire"></span></p>
+      <p><strong>Adresse de destination :</strong> <span id="arrivee"></span></p>
+      <p><strong>Date d'envoi :</strong> <span id="date_envoi"></span></p>
+      <p><strong>Commande du :</strong> <span id="commande_date"></span></p>
+
+      <div class="progress mt-4">
+        <div id="barreStatut" class="progress-bar bg-success" role="progressbar" style="width: 0%">0%</div>
+      </div>
+      <p class="mt-2" id="statutText">En attente</p>
+    </div>
+
+    <h2>Table de Livraison (modification + ajout)</h2>
+
+    <div class="table-container">
+      <table id="tableLivraison">
+        <thead>
+          <tr>
+            <th>Tracking</th>
+            <th>Type</th>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th>Produits</th>
+            <th>Montant</th>
+            <th>Frais</th>
+            <th>Total</th>
+            <th>Distance</th>
+            <th>Statut</th>
+            <th>Livreur</th>
+          </tr>
+        </thead>
+        <tbody id="bodyLivraison">
+          <!-- Lignes dynamiques -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="btn-group mt-3">
+      <button onclick="addRow()">+ Ajouter une livraison</button>
+      <button onclick="saveAll()">💾 Enregistrer les livraisons</button>
+    </div>
+  </div>
+
+  <script>
+    function rechercherCommande() {
+      const code = document.getElementById("code_suivi").value.trim();
+      fetch(`/api/suivi_commande/${code}`)
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(data => {
+          document.getElementById("detailsCommande").classList.remove("d-none");
+          document.getElementById("code_affiche").textContent = code;
+          document.getElementById("type").textContent = data.type;
+          document.getElementById("expediteur").textContent = data.expediteur;
+          document.getElementById("commande_produits").textContent = data.produits;
+          document.getElementById("tel_expediteur").textContent = data.telephone_expediteur;
+          document.getElementById("depart").textContent = data.depart;
+          document.getElementById("destinataire").textContent = data.destinataire;
+          document.getElementById("tel_destinataire").textContent = data.telephone_destinataire;
+          document.getElementById("arrivee").textContent = data.arrivee;
+          document.getElementById("date_envoi").textContent = data.date_envoi;
+          document.getElementById("commande_date").textContent = data.date_commande;
+
+          const etapes = ["en_attente", "en_cours", "livree"];
+          const labels = {
+            en_attente: "En attente",
+            en_cours: "En cours de livraison",
+            livree: "Livrée"
+          };
+          const index = etapes.indexOf(data.statut_livraison);
+          const progress = ((index + 1) / etapes.length) * 100;
+          const barre = document.getElementById("barreStatut");
+          barre.style.width = `${progress}%`;
+          barre.textContent = `${progress}%`;
+          document.getElementById("statutText").textContent = labels[data.statut_livraison] || "Inconnu";
+        })
+        .catch(() => {
+          alert("Commande non trouvée.");
+          document.getElementById("detailsCommande").classList.add("d-none");
+        });
+    }
+
+    async function fetchLivraisons() {
+      const res = await fetch('/api/livraisons');
+      const data = await res.json();
+      const body = document.getElementById("bodyLivraison");
+      body.innerHTML = "";
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        for (let key of ["tracking_code", "type", "depart", "arrivee", "produits", "montant_colis", "frais", "montant_total", "distance_km", "statut_livraison", "nom_livreur"]) {
+          const td = document.createElement("td");
+          const input = document.createElement("input");
+          input.value = row[key] ?? '';
+          input.name = key;
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+      });
+    }
+
+    function addRow() {
+      const body = document.getElementById("bodyLivraison");
+      const tr = document.createElement("tr");
+      const cols = ["tracking_code", "type", "depart", "arrivee", "produits", "montant_colis", "frais", "montant_total", "distance_km", "statut_livraison", "nom_livreur"];
+      cols.forEach(col => {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.name = col;
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    }
+
+    async function saveAll() {
+      const rows = document.querySelectorAll("#bodyLivraison tr");
+      const livraisons = [];
+      rows.forEach(tr => {
+        const livraison = {};
+        tr.querySelectorAll("input").forEach(input => {
+          livraison[input.name] = input.value;
+        });
+        livraisons.push(livraison);
+      });
+
+      const res = await fetch('/api/livraisons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ livraisons })
+      });
+
+      if (res.ok) {
+        alert("Livraisons enregistrées avec succès !");
+        fetchLivraisons();
+      } else {
+        alert("Erreur lors de l'enregistrement.");
+      }
+    }
+
+    fetchLivraisons();
+  </script>
+</body>
+</html>
