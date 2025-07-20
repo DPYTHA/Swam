@@ -469,9 +469,7 @@ def confirmation():
 @app.route('/suivi_commande')
 def suivi_commande1():
     return render_template("suivi_commande.html")
-@app.route('/suivi/<code>')
-def page_suivi(code):
-    return render_template("suivi_commande.html", code=code)
+
 
 
 @app.route('/deconnexion')
