@@ -2,6 +2,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
   <title>Espace Livreur</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
@@ -99,7 +101,7 @@ const statutLabels = { en_attente: "En attente", en_cours: "En cours de livraiso
 
 function chargerCommande() {
   currentCode = document.getElementById("code_client").value.trim();
-  fetch(`/api/suivi_commande/${currentCode}`)
+  fetch(`https://swam-production.up.railway.app/api/suivi_commande/${currentCode}`)
     .then(res => {
       if (!res.ok) throw new Error("Commande non trouvée");
       return res.json();
@@ -129,7 +131,7 @@ function avancerStatut() {
   }
 
   const nouveauStatut = statutOrder[index + 1];
-  fetch(`/api/maj_statut/${currentCode}`, {
+  fetch(`https://swam-production.up.railway.app/api/maj_statut/${currentCode}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ statut: nouveauStatut })
@@ -158,7 +160,7 @@ function updateProgress() {
   document.getElementById("btn_avancer").disabled = (currentStatut === "livree");
 }
 function changerDisponibilite(etat) {
-  fetch("/api/livreur/disponibilite", {
+  fetch("https://swam-production.up.railway.app/api/livreur/disponibilite", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ disponible: etat })

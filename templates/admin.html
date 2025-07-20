@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Tableau de bord Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function chargerCommandes() {
-  fetch('/api/admin/commandes')
+  fetch('https://swam-production.up.railway.app/api/admin/commandes')
     .then(res => res.json())
     .then(data => {
       const body = document.getElementById("commandes-body");
@@ -150,7 +152,7 @@ function chargerCommandes() {
 }
 
 function updateStatut(code, statut) {
-  fetch('/api/admin/update_statut', {
+  fetch('https://swam-production.up.railway.app/api/admin/update_statut', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, statut })
@@ -162,7 +164,7 @@ function updateStatut(code, statut) {
 
 function supprimerCommande(code) {
   if (!confirm("Supprimer cette commande ?")) return;
-  fetch('/api/admin/delete_commande', {
+  fetch('https://swam-production.up.railway.app/api/admin/delete_commande', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code })
@@ -175,7 +177,7 @@ function supprimerCommande(code) {
 }
 
 function chargerUsers() {
-  fetch('/api/users')
+  fetch('https://swam-production.up.railway.app/api/users')
     .then(res => res.json())
     .then(data => {
       const body = document.getElementById("users-body");
@@ -204,7 +206,7 @@ function modifierCommande(code) {
     return;
   }
 
-  fetch('/api/admin/update_commande', {
+  fetch('https://swam-production.up.railway.app/api/admin/update_commande', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, type, depart, arrivee })

@@ -223,7 +223,7 @@ select, input, textarea {
   let distances = {}; // sera rempli depuis JSON
 
   // Charger le fichier JSON contenant toutes les distances
-  fetch("/static/distances_combinations.json")  // <-- adapte ce chemin à ton projet
+  fetch("https://swam-production.up.railway.app/static/distances_combinations.json")  // <-- adapte ce chemin à ton projet
     .then(res => res.json())
     .then(json => {
       distances = json;
@@ -269,7 +269,7 @@ function envoyerCommande() {
     return;
   }
 
-  const trackingCode = "CMD_" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "_" +
+  const trackingCode = "SWA_" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "_" +
                        Math.random().toString(36).substring(2, 6).toUpperCase();
 
   localStorage.setItem("commande_tracking", JSON.stringify({
@@ -306,7 +306,7 @@ function envoyerCommande() {
   fraisResult.textContent = `Frais estimés : ${Math.ceil(frais)} FCFA`;
   totalResult.textContent = `Montant total à payer : ${montant_total} FCFA`;
 
-  fetch("/commandeVip", {
+  fetch("https://swam-production.up.railway.app/commandeVip", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
