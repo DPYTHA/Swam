@@ -2,96 +2,100 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <title>Suivi de commande</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <title>Suivi Commande</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     body {
-      background: linear-gradient(120deg, #ff914d, #ff5e62);
-      min-height: 100vh;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+      text-align: center;
     }
-    .tracker {
-      margin-top: 100px;
-    }
-    .progress {
-      height: 30px;
-      background-color: #e0e0e0;
-    }
-    .progress-bar {
-      font-weight: bold;
-      font-size: 1rem;
-    }
-  </style>
-    <style>
-    .header {
-      display: flex;
-      justify-content: flex-end;
+    .tracking-container {
+      max-width: 500px;
+      margin: auto;
       padding: 20px;
-      background-color: #1e293b;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
-    .logout-button a {
-      text-decoration: none;
-      background-color: #1f0fae;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
+    input {
+      padding: 10px;
+      width: 80%;
       font-size: 16px;
-      transition: background-color 0.3s ease;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
-
-    .logout-button a:hover {
-      background-color: #dc2626;
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
     }
-
-    .logout-button a:active {
-      background-color: #b91c1c;
+    button:hover {
+      background-color: #0056b3;
+    }
+    .status-bar {
+      margin-top: 20px;
+      height: 20px;
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .status-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #4caf50, #8bc34a);
+      text-align: center;
+      color: white;
+      transition: width 1s ease;
+    }
+    .copy-icon {
+      cursor: pointer;
+      margin-left: 10px;
+      color: #007bff;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-    <div class="header">
-    <div class="logout-button">
-      <a href="/deconnexion">Déconnexion</a>
+
+<div class="tracking-container">
+  <h2>Suivi de votre commande</h2>
+
+  <!-- Affichage initial -->
+  <p><strong>Code de suivi :</strong>
+    <span id="code_initial">{{ code }}</span>
+    <span class="copy-icon" onclick="copierCode('code_initial')" title="Copier">📋</span>
+  </p>
+
+  <input type="text" id="code_suivi" placeholder="Ex: CMD_20250719_HYWK" value="{{ code }}">
+  <br>
+  <button onclick="rechercherCommande()">Rechercher</button>
+
+  <div id="detailsCommande" class="d-none">
+    <h3>Détails de la commande</h3>
+    <p><strong>Code de suivi :</strong> <span id="code_details"></span></p>
+    <p><strong>Nom :</strong> <span id="nom"></span></p>
+    <p><strong>Numéro :</strong> <span id="numero"></span></p>
+    <p><strong>Contenu :</strong> <span id="contenu"></span></p>
+    <p><strong>Destination :</strong> <span id="destination"></span></p>
+    <p><strong>Statut :</strong> <span id="statut"></span></p>
+
+    <div class="status-bar">
+      <div id="progress" class="status-fill">0%</div>
     </div>
   </div>
-  <div class="container tracker text-center">
-    <h2>Suivi de votre commande</h2><br>
-    <p>Entrez votre code de suivi pour voir l’état de votre livraison :</p>
-   <p><strong>Code de suivi :</strong> <span id="code_affiche">{{ code }}</span></p>
-
-   <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK" value="{{ code }}">
-
-    <button onclick="rechercherCommande()" class="btn btn-light">Rechercher</button>
-
-    <div id="detailsCommande" class="mt-5 d-none text-start">
-      <h4 class="text-center">Détails de la commande</h4>
-      <p><strong>Code de suivi :</strong> <span id="code_affiche"></span></p>
-      <p><strong>Type de colis :</strong> <span id="type"></span></p>
-      <p><strong>Expéditeur :</strong> <span id="expediteur"></span></p>
-      <p><strong>Téléphone de l'expéditeur :</strong> <span id="tel_expediteur"></span></p>
-      <p><strong>Adresse de départ :</strong> <span id="depart"></span></p>
-      <p><strong>Produits :</strong> <span id="commande_produits"></span></p>
-      <p><strong>Destinataire :</strong> <span id="destinataire"></span></p>
-      <p><strong>Téléphone du destinataire :</strong> <span id="tel_destinataire"></span></p>
-      <p><strong>Adresse de destination :</strong> <span id="arrivee"></span></p>
-      <p><strong>Date d'envoi :</strong> <span id="date_envoi"></span></p>
-       <p><strong>Commande du :</strong> <span id="commande_date"></span></p>
-
-      <div class="progress mt-4">
-        <div id="barreStatut" class="progress-bar bg-success" role="progressbar" style="width: 0%">0%</div>
-      </div>
-      <p class="mt-2" id="statutText">En attente</p>
-    </div>
-  </div>
+</div>
 
 <script>
 function rechercherCommande() {
   const code = document.getElementById("code_suivi").value.trim();
+
   fetch(`https://swam-production.up.railway.app/api/suivi_commande/${code}`)
     .then(res => {
       if (!res.ok) throw new Error();
@@ -99,43 +103,40 @@ function rechercherCommande() {
     })
     .then(data => {
       document.getElementById("detailsCommande").classList.remove("d-none");
-      document.getElementById("code_affiche").textContent = code;
-      document.getElementById("type").textContent = data.type;
-      document.getElementById("expediteur").textContent = data.expediteur;
-      document.getElementById("commande_produits").textContent = data.produits;
-      document.getElementById("tel_expediteur").textContent = data.telephone_expediteur;
-      document.getElementById("depart").textContent = data.depart;
-      document.getElementById("destinataire").textContent = data.destinataire;
-      document.getElementById("tel_destinataire").textContent = data.telephone_destinataire;
-      document.getElementById("arrivee").textContent = data.arrivee;
-      document.getElementById("date_envoi").textContent = data.date_envoi;
-      document.getElementById("commande_date").textContent = data.date_commande;
+      document.getElementById("code_details").textContent = code;
+      document.getElementById("nom").textContent = data.nom;
+      document.getElementById("numero").textContent = data.numero;
+      document.getElementById("contenu").textContent = data.contenu;
+      document.getElementById("destination").textContent = data.destination;
+      document.getElementById("statut").textContent = data.statut;
 
-      const etapes = ["en_attente", "en_cours", "livree"];
-      const labels = {
-        en_attente: "En attente",
-        en_cours: "En cours de livraison",
-        livree: "Livrée"
-      };
-      const index = etapes.indexOf(data.statut_livraison);
-      const progress = ((index + 1) / etapes.length) * 100;
-
-      const barre = document.getElementById("barreStatut");
-      barre.style.width = `${progress}%`;
-      barre.textContent = `${progress}%`;
-      document.getElementById("statutText").textContent = labels[data.statut_livraison] || "Inconnu";
+      const progressBar = document.getElementById("progress");
+      let pourcentage = 0;
+      switch (data.statut.toLowerCase()) {
+        case "commande reçue": pourcentage = 25; break;
+        case "en cours de traitement": pourcentage = 50; break;
+        case "en cours de livraison": pourcentage = 75; break;
+        case "livrée": pourcentage = 100; break;
+        default: pourcentage = 10;
+      }
+      progressBar.style.width = pourcentage + "%";
+      progressBar.textContent = pourcentage + "%";
     })
     .catch(() => {
       alert("Commande non trouvée.");
       document.getElementById("detailsCommande").classList.add("d-none");
     });
 }
- window.onload = () => {
-    const codeInitial = document.getElementById("code_suivi").value.trim();
-    if (codeInitial) {
-      rechercherCommande();
-    }
-  };
+
+// Fonction pour copier un code
+function copierCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Code copié : " + text);
+  });
+}
 </script>
+
 </body>
 </html>
