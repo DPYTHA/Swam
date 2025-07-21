@@ -76,7 +76,7 @@
     <p>Entrez votre code de suivi pour voir l’état de votre livraison :</p>
     <p><strong>Code de suivi :</strong> <span id="code_initial">{{ code }}</span></p>
 
-    <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK" value="{{ code }}">
+    <input type="text" id="code_suivi" class="form-control mb-3" placeholder="Ex: CMD_20250719_HYWK">
     <button onclick="rechercherCommande()" class="btn btn-light">Rechercher</button>
 
     <div id="detailsCommande" class="mt-5 d-none text-start">
@@ -143,12 +143,22 @@ function rechercherCommande() {
 }
 
 window.onload = () => {
-  const codeInitial = document.getElementById("code_suivi").value.trim();
-  if (codeInitial) {
-    document.getElementById("code_affiche_resultat").textContent = codeInitial;
-    rechercherCommande();
+  const savedCommande = localStorage.getItem("commande_tracking");
+  if (savedCommande) {
+    try {
+      const obj = JSON.parse(savedCommande);
+      const code = obj.tracking_code;
+      if (code) {
+        document.getElementById("code_suivi").value = code;
+        document.getElementById("code_affiche_resultat").textContent = code;
+        rechercherCommande();
+      }
+    } catch (e) {
+      console.error("Erreur parsing localStorage commande_tracking :", e);
+    }
   }
 };
 </script>
+
 </body>
 </html>
